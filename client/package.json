@@ -1,5 +1,5 @@
 {
-  "name": "wp5-starter-react",
+  "name": "chat-app",
   "version": "1.0.0",
   "scripts": {
     "build": "webpack --mode production",
@@ -12,8 +12,8 @@
   },
   "license": "MIT",
   "author": {
-    "name": "Jack Herrington",
-    "email": "jherr@pobox.com"
+    "name": "Gonçalo Ramalho",
+    "email": "meet@goncaloramalho.com"
   },
   "devDependencies": {
     "@babel/core": "7.9.6",
@@ -22,6 +22,8 @@
     "@babel/preset-react": "7.9.4",
     "babel-loader": "8.1.0",
     "css-loader": "^3.5.3",
+    "eslint": "^7.13.0",
+    "eslint-plugin-react": "^7.21.5",
     "html-webpack-plugin": "next",
     "style-loader": "1.2.1",
     "url-loader": "^4.1.1",

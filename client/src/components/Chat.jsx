@@ -104,7 +104,6 @@ const Chat = () => {
           value={state.content}
           onChange={handleInputChange}
         >
-          <input />
           <Dropdown
             button
             basic
@@ -113,7 +112,11 @@ const Chat = () => {
             defaultValue={state.username}
             onChange={handleUserChange}
           />
-          <Button type='submit'>Send</Button>
+          <input />
+          <Button type='submit' basic icon labelPosition='left' color='blue'>
+            <Icon name='send' />
+            Send
+          </Button>
         </Input>
       </Form>
     </Container>

@@ -28,6 +28,7 @@ const Messages = ({ user }) => {
             key={id}
             compact
             inverted
+            secondary
             color={isUser ? 'blue' : 'grey'}
             style={{ ...messageStyles, alignSelf: messageAlign }}
           >
