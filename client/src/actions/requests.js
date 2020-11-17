@@ -10,3 +10,9 @@ export const GET_MESSAGES = gql`
     }
   }
 `;
+
+export const SEND_MESSAGES = gql`
+  mutation($username: String!, $content: String!) {
+    postMessage(username: $username, content: $content)
+  }
+`;

@@ -16,7 +16,8 @@ const typeDefs = `
     }
 
     type Mutation {
-        postMessage(username: String!, content: String!): ID!
+      "Adds message to messages array"
+      postMessage(username: String!, content: String!): ID!
     }
 `;
 
