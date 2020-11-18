@@ -9,7 +9,6 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 import Messages from './Messages';
 import {
   Button,
-  Container,
   Dropdown,
   Form,
   Header,
@@ -84,14 +83,27 @@ const Chat = () => {
   };
 
   return (
-    <Container style={{ padding: '20px 0' }}>
+    <div
+      style={{
+        height: '100%',
+        padding: '20px',
+        display: 'grid',
+        gridTemplateRows: 'auto 1fr auto',
+      }}
+    >
       <Header attached='top' size='large'>
         <Icon name='chat' size='large' />
         <Header.Content>
           Let's talk about ... baby, let's talk about you and me
         </Header.Content>
       </Header>
-      <Segment placeholder attached>
+      <Segment
+        placeholder
+        attached
+        style={{
+          overflow: 'hidden',
+        }}
+      >
         <Messages currentUser={state.username} />
       </Segment>
       <Form
@@ -126,7 +138,7 @@ const Chat = () => {
           </Button>
         </Input>
       </Form>
-    </Container>
+    </div>
   );
 };
 
