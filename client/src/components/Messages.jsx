@@ -1,7 +1,8 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
+import PropTypes from 'prop-types';
+import { useSubscription } from '@apollo/client';
 import { GET_MESSAGES } from '../actions/requests';
-import { Container, Message, Segment, Header, Label } from 'semantic-ui-react';
+import { Container, Segment, Label } from 'semantic-ui-react';
 
 const messageStyles = {
   maxWidth: '50%',
@@ -13,14 +14,14 @@ const containerStyles = {
   flexDirection: 'column',
 };
 
-const Messages = ({ user }) => {
-  const { data } = useQuery(GET_MESSAGES);
-
+const Messages = ({ currentUser }) => {
+  const { data } = useSubscription(GET_MESSAGES);
   if (!data) return null;
+
   return (
     <Container style={containerStyles}>
       {data.messages.map(({ id, username, content }) => {
-        const isUser = username === user;
+        const isUser = username === currentUser;
         const messageAlign = isUser ? 'flex-end' : 'flex-start';
 
         return (
@@ -42,13 +43,16 @@ const Messages = ({ user }) => {
                 {username}
               </Label>
             )}
-            {/* <Label attached={'top right'}>{username}</Label> */}
             <p>{content}</p>
           </Segment>
         );
       })}
     </Container>
   );
+};
+
+Messages.propTypes = {
+  currentUser: PropTypes.string.isRequired,
 };
 
 export default Messages;

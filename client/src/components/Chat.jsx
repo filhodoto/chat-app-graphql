@@ -5,6 +5,7 @@ import {
   ApolloProvider,
   useMutation,
 } from '@apollo/client';
+import { WebSocketLink } from '@apollo/client/link/ws';
 import Messages from './Messages';
 import {
   Button,
@@ -18,17 +19,22 @@ import {
 } from 'semantic-ui-react';
 
 import { SEND_MESSAGES } from '../actions/requests';
+
+// Initialize a WebSocketLink (this needs to be called link)
+// https://www.apollographql.com/docs/link/links/ws/#options
+const link = new WebSocketLink({
+  uri: `ws://localhost:4000/`,
+  options: {
+    reconnect: true,
+  },
+});
+
 // Create GraphQL client
 const client = new ApolloClient({
+  link,
   uri: 'http://localhost:4000/',
   cache: new InMemoryCache(),
 });
-
-const styles = {
-  mainContainer: {
-    padding: '20px 0',
-  },
-};
 
 const Chat = () => {
   const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
@@ -39,6 +45,7 @@ const Chat = () => {
   ]);
   const [postMessage] = useMutation(SEND_MESSAGES);
 
+  // TODO:: Show this and dropdown according to state change
   const dummyUserList = [
     { key: 'Zar', value: 'Zar', text: 'Zar' },
     { key: 'Ramalho', value: 'Ramalho', text: 'Ramalho' },
@@ -48,6 +55,7 @@ const Chat = () => {
   // Handle form submit
   const handleFormSubmit = (ev) => {
     ev.preventDefault();
+
     if (state.content.length > 0) {
       // Check if user is already in users list and if he has color
       if (usersList.find((el) => el.key === state.username)) {
@@ -58,7 +66,6 @@ const Chat = () => {
           { name: state.username, color: colors[usersList.length] },
         ]);
       }
-      console.log('form submit');
       // Send message
       postMessage({ variables: state });
       // Clear state content
@@ -77,7 +84,7 @@ const Chat = () => {
   };
 
   return (
-    <Container style={styles.mainContainer}>
+    <Container style={{ padding: '20px 0' }}>
       <Header attached='top' size='large'>
         <Icon name='chat' size='large' />
         <Header.Content>
@@ -85,7 +92,7 @@ const Chat = () => {
         </Header.Content>
       </Header>
       <Segment placeholder attached>
-        <Messages user={state.username} />
+        <Messages currentUser={state.username} />
       </Segment>
       <Form
         style={{ padding: '20px 0px 0' }}
