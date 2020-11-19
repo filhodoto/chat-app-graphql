@@ -25,7 +25,9 @@ const reverseDivStyles = {
   flexDirection: 'column',
 };
 
-const Messages = ({ currentUser }) => {
+const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
+
+const Messages = ({ currentUser, usersList }) => {
   const { data } = useSubscription(GET_MESSAGES);
   if (!data) return null;
 
@@ -48,7 +50,7 @@ const Messages = ({ currentUser }) => {
               {!isUser && (
                 <Label
                   as='span'
-                  color='teal'
+                  color='blue'
                   ribbon='right'
                   style={{ marginBottom: '10px' }}
                 >
@@ -64,8 +66,9 @@ const Messages = ({ currentUser }) => {
   );
 };
 
-Messages.propTypes = {
-  currentUser: PropTypes.string.isRequired,
-};
+// Messages.propTypes = {
+//   name: PropTypes.string.isRequired,
+//   color: PropTypes.string.isRequired,
+// };
 
 export default Messages;

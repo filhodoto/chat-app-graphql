@@ -4,20 +4,24 @@ import {
   InMemoryCache,
   ApolloProvider,
   useMutation,
+  useQuery,
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import Messages from './Messages';
 import {
   Button,
+  Dimmer,
   Dropdown,
   Form,
   Header,
   Icon,
   Input,
+  Loader,
+  Modal,
   Segment,
 } from 'semantic-ui-react';
 
-import { SEND_MESSAGES } from '../actions/requests';
+import { SEND_MESSAGES, GET_USERS } from '../actions/requests';
 
 // Initialize a WebSocketLink (this needs to be called link)
 // https://www.apollographql.com/docs/link/links/ws/#options
@@ -36,109 +40,178 @@ const client = new ApolloClient({
 });
 
 const Chat = () => {
-  const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
-
-  const [state, setState] = useState({ username: 'Ramalho', content: '' });
-  const [usersList, setUsersList] = useState([
-    { name: 'Ramalho', color: colors[0] },
-  ]);
+  const [state, setState] = useState({
+    loggedUser: null,
+    messageContent: '',
+    usersList: [],
+    modalOpen: false,
+    dataFetched: false,
+  });
+  const { loading, error, data } = useQuery(GET_USERS);
   const [postMessage] = useMutation(SEND_MESSAGES);
 
-  // TODO:: Show this and dropdown according to state change
-  const dummyUserList = [
-    { key: 'Zar', value: 'Zar', text: 'Zar' },
-    { key: 'Ramalho', value: 'Ramalho', text: 'Ramalho' },
-    { key: 'Carrilho', value: 'Carrilho', text: 'Carrilho' },
-  ];
+  // When we get the data populate state with values from query
+  if (!loading && !state.loggedUser && !state.dataFetched) {
+    // If we have users
+    if (data.users.length > 0) {
+      setState({
+        ...state,
+        loggedUser: data.users[0].text,
+        usersList: data.users,
+        dataFetched: true,
+      });
+    } else {
+      // If we don't have users show modal
+      setState({
+        ...state,
+        modalOpen: true,
+        dataFetched: true,
+      });
+    }
+  }
 
   // Handle form submit
   const handleFormSubmit = (ev) => {
     ev.preventDefault();
 
-    if (state.content.length > 0) {
-      // Check if user is already in users list and if he has color
-      if (usersList.find((el) => el.key === state.username)) {
-        console.log('User already has color');
-      } else {
-        setUsersList([
-          ...usersList,
-          { name: state.username, color: colors[usersList.length] },
-        ]);
-      }
+    if (state.messageContent.length > 0) {
       // Send message
-      postMessage({ variables: state });
-      // Clear state content
-      setState({ ...state, content: '' });
+      postMessage({
+        variables: {
+          username: state.loggedUser,
+          content: state.messageContent,
+        },
+      });
+      // Clear state messageContent
+      setState({ ...state, messageContent: '' });
     }
   };
 
   // Handle User change
   const handleUserChange = (ev, value) => {
-    setState({ ...state, username: value.value });
+    setState({ ...state, loggedUser: value.name });
   };
 
   // Handle Input change
   const handleInputChange = (ev, value) => {
-    setState({ ...state, content: value.value });
+    setState({ ...state, messageContent: value.value });
   };
 
   return (
-    <div
-      style={{
-        height: '100%',
-        padding: '20px',
-        display: 'grid',
-        gridTemplateRows: 'auto 1fr auto',
-      }}
-    >
-      <Header attached='top' size='large'>
-        <Icon name='chat' size='large' />
-        <Header.Content>
-          Let's talk about ... baby, let's talk about you and me
-        </Header.Content>
-      </Header>
-      <Segment
-        placeholder
-        attached
-        style={{
-          overflow: 'hidden',
-        }}
-      >
-        <Messages currentUser={state.username} />
-      </Segment>
-      <Form
-        style={{ padding: '20px 0px 0' }}
-        onSubmit={handleFormSubmit}
-        onKeyPress={(ev) => {
-          if (ev.key === 'Enter') {
-            handleFormSubmit;
-          }
-        }}
-      >
-        <Input
-          type='text'
-          placeholder='Whats on your mind...'
-          action
-          fluid
-          value={state.content}
-          onChange={handleInputChange}
+    <>
+      {loading ? (
+        <Dimmer active>
+          <Loader content='Loading' />
+        </Dimmer>
+      ) : (
+        <div
+          style={{
+            height: '100%',
+            padding: '20px',
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr auto',
+          }}
         >
-          <Dropdown
-            button
+          <Modal
             basic
-            floating
-            options={dummyUserList}
-            defaultValue={state.username}
-            onChange={handleUserChange}
-          />
-          <input />
-          <Button type='submit' basic icon labelPosition='left' color='blue'>
-            <Icon name='send' />
-            Send
-          </Button>
-        </Input>
-      </Form>
-    </div>
+            closeIcon
+            onClose={() =>
+              setState({
+                ...state,
+                modalOpen: false,
+              })
+            }
+            onOpen={() =>
+              setState({
+                ...state,
+                modalOpen: true,
+              })
+            }
+            open={state.modalOpen}
+            size='small'
+          >
+            <Modal.Content>
+              <p>There are no users to chat</p>
+            </Modal.Content>
+          </Modal>
+          <Header attached='top' size='large'>
+            <Icon name='chat' size='large' />
+            {state.loggedUser && (
+              <Header.Content>Logged in as {state.loggedUser}</Header.Content>
+            )}
+          </Header>
+          <Segment
+            placeholder
+            attached
+            style={{
+              overflow: 'hidden',
+            }}
+          >
+            {state.loggedUser && (
+              <Messages
+                currentUser={state.loggedUser}
+                usersList={state.usersList}
+              />
+            )}
+          </Segment>
+          {state.loggedUser && (
+            <>
+              <Dropdown
+                labeled
+                // button
+                icon='user'
+                className='icon'
+                floating
+                defaultValue={state.usersList[0].username}
+                // options={usersList}
+                // onChange={handleUserChange}
+              >
+                <Dropdown.Menu>
+                  {state.usersList.map((user) => (
+                    <Dropdown.Item
+                      onClick={(ev, value) => handleUserChange(ev, value)}
+                      key={user.key}
+                      text={user.text}
+                      {...user}
+                    />
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+              <Form
+                style={{ padding: '20px 0px 0' }}
+                onSubmit={handleFormSubmit}
+                onKeyPress={(ev) => {
+                  if (ev.key === 'Enter') {
+                    handleFormSubmit;
+                  }
+                }}
+              >
+                <Input
+                  type='text'
+                  placeholder='Whats on your mind...'
+                  action
+                  fluid
+                  value={state.messageContent}
+                  onChange={handleInputChange}
+                >
+                  <input />
+                  <Button
+                    type='submit'
+                    basic
+                    icon
+                    labelPosition='left'
+                    color='blue'
+                  >
+                    <Icon name='send' />
+                    Send
+                  </Button>
+                </Input>
+              </Form>
+            </>
+          )}
+        </div>
+      )}
+    </>
   );
 };
 

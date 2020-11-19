@@ -11,8 +11,24 @@ export const GET_MESSAGES = gql`
   }
 `;
 
+export const GET_USERS = gql`
+  query {
+    users {
+      username
+      key
+      text
+    }
+  }
+`;
+
 export const SEND_MESSAGES = gql`
   mutation($username: String!, $content: String!) {
     postMessage(username: $username, content: $content)
+  }
+`;
+
+export const ADD_USER = gql`
+  mutation($username: String!) {
+    addUser(username: $username)
   }
 `;

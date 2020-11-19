@@ -6,6 +6,9 @@ const messages = [];
 // List of subscribers to our messages
 const subscribers = [];
 
+// List of users in our app
+const users = [];
+
 // Action to do when we update messages
 const onMessagesUpdates = (fn) => subscribers.push(fn);
 
@@ -17,8 +20,15 @@ const typeDefs = `
         content: String!
     }
 
+    type User {
+      key: String!  
+      username: String!
+      text: String!
+    }
+
     type Query {
         messages: [Message!]
+        users: [User!]
     }
 
     type Subscription {
@@ -28,12 +38,14 @@ const typeDefs = `
     type Mutation {
       "Adds message to messages array"
       postMessage(username: String!, content: String!): ID!
+      "Add user to users array"
+      addUser(username: String!): String!
     }
 `;
 
 // Define how we are gonna get the data
 const resolvers = {
-  Query: { messages: () => messages },
+  Query: { messages: () => messages, users: () => users },
   Mutation: {
     postMessage: (parent, { username, content }) => {
       // Create and ID based on messages length (which won't be repeat)
@@ -47,6 +59,15 @@ const resolvers = {
       subscribers.forEach((fn) => fn());
 
       return id;
+    },
+    addUser: (parent, { username }) => {
+      const key = username.split(' ')[0].toLowerCase();
+      const text = username.replace(/^\w/, (c) => c.toUpperCase());
+
+      // Add user to users arrays
+      users.push({ key, username, text });
+
+      return username;
     },
   },
   Subscription: {
