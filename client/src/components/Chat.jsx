@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ApolloClient,
   InMemoryCache,
@@ -17,11 +17,17 @@ import {
   Icon,
   Input,
   Loader,
-  Modal,
   Segment,
 } from 'semantic-ui-react';
 
-import { SEND_MESSAGES, GET_USERS } from '../actions/requests';
+import {
+  SEND_MESSAGES,
+  GET_USERS,
+  ADD_USER,
+  DELETE_ALL_USERS,
+  DELETE_ALL_MESSAGES,
+} from '../actions/requests';
+import AddUserModal from './AddUserModal';
 
 // Initialize a WebSocketLink (this needs to be called link)
 // https://www.apollographql.com/docs/link/links/ws/#options
@@ -45,30 +51,62 @@ const Chat = () => {
     messageContent: '',
     usersList: [],
     modalOpen: false,
-    dataFetched: false,
+    fetchDataOnLoad: false,
   });
-  const { loading, error, data } = useQuery(GET_USERS);
-  const [postMessage] = useMutation(SEND_MESSAGES);
 
-  // When we get the data populate state with values from query
-  if (!loading && !state.loggedUser && !state.dataFetched) {
-    // If we have users
-    if (data.users.length > 0) {
-      setState({
-        ...state,
-        loggedUser: data.users[0].text,
-        usersList: data.users,
-        dataFetched: true,
-      });
-    } else {
-      // If we don't have users show modal
-      setState({
-        ...state,
-        modalOpen: true,
-        dataFetched: true,
-      });
+  const { loading, error, data, refetch } = useQuery(GET_USERS);
+  const [postMessage] = useMutation(SEND_MESSAGES);
+  const [addUser] = useMutation(ADD_USER);
+  const [deleteAllUsers] = useMutation(DELETE_ALL_USERS);
+  const [deleteAllMessages] = useMutation(DELETE_ALL_MESSAGES);
+
+  useEffect(() => {
+    if (!loading) {
+      // When we get the data for the first time populate state with values from query
+      if (!state.loggedUser && !state.fetchDataOnLoad) {
+        // If we have users
+        if (data.users.length > 0) {
+          setState({
+            ...state,
+            loggedUser: data.users[0].text,
+            usersList: data.users,
+            fetchDataOnLoad: true,
+          });
+        } else {
+          // If we don't have users show modal
+          setState({
+            ...state,
+            modalOpen: true,
+            fetchDataOnLoad: true,
+          });
+        }
+      }
+
+      // If the users number change
+      if (
+        data.users.length !== state.usersList.length &&
+        data.users.length > 0
+      ) {
+        // Update users list in state
+        setState({
+          ...state,
+          usersList: data.users,
+          modalOpen: false,
+        });
+      }
+
+      // If we have users but we don't have a loggedUsername
+      if (!state.loggedUser && data.users.length > 0) {
+        // Set loggedUsername to first in
+        setState({
+          ...state,
+          loggedUser: data.users[0].text,
+        });
+      }
     }
-  }
+
+    return () => {};
+  }, [data, state, loading]);
 
   // Handle form submit
   const handleFormSubmit = (ev) => {
@@ -97,6 +135,15 @@ const Chat = () => {
     setState({ ...state, messageContent: value.value });
   };
 
+  const onUserAdded = (username) => {
+    // Add new user to server
+    addUser({ variables: { username: username } });
+
+    // Refectch users
+    // Note:: There are better ways of doing this, like using subscription instead of query for users
+    refetch();
+  };
+
   return (
     <>
       {loading ? (
@@ -112,33 +159,19 @@ const Chat = () => {
             gridTemplateRows: 'auto 1fr auto',
           }}
         >
-          <Modal
-            basic
-            closeIcon
-            onClose={() =>
-              setState({
-                ...state,
-                modalOpen: false,
-              })
-            }
-            onOpen={() =>
-              setState({
-                ...state,
-                modalOpen: true,
-              })
-            }
-            open={state.modalOpen}
-            size='small'
-          >
-            <Modal.Content>
-              <p>There are no users to chat</p>
-            </Modal.Content>
-          </Modal>
+          <AddUserModal
+            modalOpen={state.modalOpen}
+            callbackFunc={onUserAdded}
+          />
           <Header attached='top' size='large'>
             <Icon name='chat' size='large' />
             {state.loggedUser && (
               <Header.Content>Logged in as {state.loggedUser}</Header.Content>
             )}
+            <Button.Group basic size='mini'>
+              <Button onClick={deleteAllUsers}>Clear users</Button>
+              <Button onClick={deleteAllMessages}>delete messages</Button>
+            </Button.Group>
           </Header>
           <Segment
             placeholder
@@ -162,7 +195,7 @@ const Chat = () => {
                 icon='user'
                 className='icon'
                 floating
-                defaultValue={state.usersList[0].username}
+                // defaultValue={state.loggedUser}
                 // options={usersList}
                 // onChange={handleUserChange}
               >

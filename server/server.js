@@ -1,13 +1,13 @@
 import { GraphQLServer, PubSub } from 'graphql-yoga';
 
 // Empty array we will fill with the messages
-const messages = [];
+let messages = [];
 
 // List of subscribers to our messages
 const subscribers = [];
 
 // List of users in our app
-const users = [];
+let users = [];
 
 // Action to do when we update messages
 const onMessagesUpdates = (fn) => subscribers.push(fn);
@@ -40,6 +40,10 @@ const typeDefs = `
       postMessage(username: String!, content: String!): ID!
       "Add user to users array"
       addUser(username: String!): String!
+      "Delete all users"
+      deleteAllUsers: String!
+      "Delete all messages"
+      deleteAllMessages: String!
     }
 `;
 
@@ -68,6 +72,14 @@ const resolvers = {
       users.push({ key, username, text });
 
       return username;
+    },
+    deleteAllUsers: (parent) => {
+      users = [];
+      return 'all users deleted';
+    },
+    deleteAllMessages: (parent) => {
+      messages = [];
+      return 'all messages deleted';
     },
   },
   Subscription: {

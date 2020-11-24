@@ -32,3 +32,14 @@ export const ADD_USER = gql`
     addUser(username: $username)
   }
 `;
+
+export const DELETE_ALL_USERS = gql`
+  mutation {
+    deleteAllUsers
+  }
+`;
+export const DELETE_ALL_MESSAGES = gql`
+  mutation {
+    deleteAllMessages
+  }
+`;
