@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSubscription } from '@apollo/client';
 import { GET_MESSAGES } from '../actions/requests';
 import { Segment, Label } from 'semantic-ui-react';
@@ -27,7 +26,7 @@ const reverseDivStyles = {
 
 const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
 
-const Messages = ({ currentUser, usersList }) => {
+const Messages = ({ loggedUser, usersList }) => {
   const { data } = useSubscription(GET_MESSAGES);
   if (!data) return null;
 
@@ -35,7 +34,7 @@ const Messages = ({ currentUser, usersList }) => {
     <div style={containerStyles}>
       <div style={reverseDivStyles}>
         {data.messages.map(({ id, username, content }) => {
-          const isUser = username === currentUser;
+          const isUser = username === loggedUser;
           const messageAlign = isUser ? 'flex-end' : 'flex-start';
 
           return (
@@ -65,10 +64,5 @@ const Messages = ({ currentUser, usersList }) => {
     </div>
   );
 };
-
-// Messages.propTypes = {
-//   name: PropTypes.string.isRequired,
-//   color: PropTypes.string.isRequired,
-// };
 
 export default Messages;

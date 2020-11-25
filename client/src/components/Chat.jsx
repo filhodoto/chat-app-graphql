@@ -8,26 +8,13 @@ import {
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import Messages from './Messages';
-import {
-  Button,
-  Dimmer,
-  Dropdown,
-  Form,
-  Header,
-  Icon,
-  Input,
-  Loader,
-  Segment,
-} from 'semantic-ui-react';
+import { Dimmer, Loader, Segment } from 'semantic-ui-react';
 
-import {
-  SEND_MESSAGES,
-  GET_USERS,
-  ADD_USER,
-  DELETE_ALL_USERS,
-  DELETE_ALL_MESSAGES,
-} from '../actions/requests';
+import { GET_USERS, ADD_USER } from '../actions/requests';
 import AddUserModal from './AddUserModal';
+import ChatHeader from './ChatHeader';
+import ChatFooter from './ChatFooter';
+import ChatConversation from './ChatConversation';
 
 // Initialize a WebSocketLink (this needs to be called link)
 // https://www.apollographql.com/docs/link/links/ws/#options
@@ -48,17 +35,13 @@ const client = new ApolloClient({
 const Chat = () => {
   const [state, setState] = useState({
     loggedUser: null,
-    messageContent: '',
     usersList: [],
     modalOpen: false,
     fetchDataOnLoad: false,
   });
 
   const { loading, error, data, refetch } = useQuery(GET_USERS);
-  const [postMessage] = useMutation(SEND_MESSAGES);
   const [addUser] = useMutation(ADD_USER);
-  const [deleteAllUsers] = useMutation(DELETE_ALL_USERS);
-  const [deleteAllMessages] = useMutation(DELETE_ALL_MESSAGES);
 
   useEffect(() => {
     if (!loading) {
@@ -108,34 +91,11 @@ const Chat = () => {
     return () => {};
   }, [data, state, loading]);
 
-  // Handle form submit
-  const handleFormSubmit = (ev) => {
-    ev.preventDefault();
-
-    if (state.messageContent.length > 0) {
-      // Send message
-      postMessage({
-        variables: {
-          username: state.loggedUser,
-          content: state.messageContent,
-        },
-      });
-      // Clear state messageContent
-      setState({ ...state, messageContent: '' });
-    }
-  };
-
   // Handle User change
-  const handleUserChange = (ev, value) => {
-    setState({ ...state, loggedUser: value.name });
-  };
+  const handleUserChange = (ev, data) =>
+    setState({ ...state, loggedUser: data.username });
 
-  // Handle Input change
-  const handleInputChange = (ev, value) => {
-    setState({ ...state, messageContent: value.value });
-  };
-
-  const onUserAdded = (username) => {
+  const addNewUser = (username) => {
     // Add new user to server
     addUser({ variables: { username: username } });
 
@@ -159,88 +119,18 @@ const Chat = () => {
             gridTemplateRows: 'auto 1fr auto',
           }}
         >
-          <AddUserModal
-            modalOpen={state.modalOpen}
-            callbackFunc={onUserAdded}
+          <AddUserModal modalOpen={state.modalOpen} callbackFunc={addNewUser} />
+          <ChatHeader loggedUser={state.loggedUser} callbackFunc={addNewUser} />
+          <ChatConversation
+            loggedUser={state.loggedUser}
+            usersList={state.usersList}
           />
-          <Header attached='top' size='large'>
-            <Icon name='chat' size='large' />
-            {state.loggedUser && (
-              <Header.Content>Logged in as {state.loggedUser}</Header.Content>
-            )}
-            <Button.Group basic size='mini'>
-              <Button onClick={deleteAllUsers}>Clear users</Button>
-              <Button onClick={deleteAllMessages}>delete messages</Button>
-            </Button.Group>
-          </Header>
-          <Segment
-            placeholder
-            attached
-            style={{
-              overflow: 'hidden',
-            }}
-          >
-            {state.loggedUser && (
-              <Messages
-                currentUser={state.loggedUser}
-                usersList={state.usersList}
-              />
-            )}
-          </Segment>
           {state.loggedUser && (
-            <>
-              <Dropdown
-                labeled
-                // button
-                icon='user'
-                className='icon'
-                floating
-                // defaultValue={state.loggedUser}
-                // options={usersList}
-                // onChange={handleUserChange}
-              >
-                <Dropdown.Menu>
-                  {state.usersList.map((user) => (
-                    <Dropdown.Item
-                      onClick={(ev, value) => handleUserChange(ev, value)}
-                      key={user.key}
-                      text={user.text}
-                      {...user}
-                    />
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-              <Form
-                style={{ padding: '20px 0px 0' }}
-                onSubmit={handleFormSubmit}
-                onKeyPress={(ev) => {
-                  if (ev.key === 'Enter') {
-                    handleFormSubmit;
-                  }
-                }}
-              >
-                <Input
-                  type='text'
-                  placeholder='Whats on your mind...'
-                  action
-                  fluid
-                  value={state.messageContent}
-                  onChange={handleInputChange}
-                >
-                  <input />
-                  <Button
-                    type='submit'
-                    basic
-                    icon
-                    labelPosition='left'
-                    color='blue'
-                  >
-                    <Icon name='send' />
-                    Send
-                  </Button>
-                </Input>
-              </Form>
-            </>
+            <ChatFooter
+              handleUserChange={handleUserChange}
+              loggedUser={state.loggedUser}
+              usersList={state.usersList}
+            />
           )}
         </div>
       )}
