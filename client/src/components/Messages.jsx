@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import { GET_MESSAGES } from '../actions/requests';
 import { Segment, Label } from 'semantic-ui-react';
@@ -24,42 +24,63 @@ const reverseDivStyles = {
   flexDirection: 'column',
 };
 
+// Define colors will be using in our messages
 const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
 
 const Messages = ({ loggedUser, usersList }) => {
   const { data } = useSubscription(GET_MESSAGES);
-  if (!data) return null;
+  // Object we'll populate with a pair object with a user key and a color
+  // Note: using callback beacause of this https://github.com/facebook/react/issues/14920
+  const userColors = useCallback(() => {}, []);
+
+  useEffect(() => {
+    // Set a color for each user
+    usersList.map((user, index) => {
+      // If user already has color
+      if (userColors[user.username]) return;
+
+      // Give color according to user index and colors index
+      // If we have more users then colors then choose random color instead of using user index
+      const colorIndex =
+        index + 1 > colors.length
+          ? Math.floor(Math.random() * Math.floor(colors.length - 1))
+          : index;
+
+      userColors[user.username] = colors[colorIndex];
+    });
+  }, [usersList, userColors]);
 
   return (
     <div style={containerStyles}>
       <div style={reverseDivStyles}>
-        {data.messages.map(({ id, username, content }) => {
-          const isUser = username === loggedUser;
-          const messageAlign = isUser ? 'flex-end' : 'flex-start';
+        {data &&
+          data.messages.map(({ id, username, content }) => {
+            const isUser = username === loggedUser;
+            const messageAlign = isUser ? 'flex-end' : 'flex-start';
 
-          return (
-            <Segment
-              key={id}
-              compact
-              inverted
-              secondary
-              color={isUser ? 'blue' : 'grey'}
-              style={{ ...messageStyles, alignSelf: messageAlign }}
-            >
-              {!isUser && (
-                <Label
-                  as='span'
-                  color='blue'
-                  ribbon='right'
-                  style={{ marginBottom: '10px' }}
-                >
-                  {username}
-                </Label>
-              )}
-              <p>{content}</p>
-            </Segment>
-          );
-        })}
+            return (
+              <Segment
+                key={id}
+                compact
+                inverted
+                secondary
+                color={isUser ? 'blue' : 'grey'}
+                style={{ ...messageStyles, alignSelf: messageAlign }}
+              >
+                {!isUser && (
+                  <Label
+                    as='span'
+                    color={userColors[username]}
+                    ribbon='right'
+                    style={{ marginBottom: '10px' }}
+                  >
+                    {username}
+                  </Label>
+                )}
+                <p>{content}</p>
+              </Segment>
+            );
+          })}
       </div>
     </div>
   );

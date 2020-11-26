@@ -7,8 +7,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
-import Messages from './Messages';
-import { Dimmer, Loader, Segment } from 'semantic-ui-react';
+import { Dimmer, Loader } from 'semantic-ui-react';
 
 import { GET_USERS, ADD_USER } from '../actions/requests';
 import AddUserModal from './AddUserModal';
@@ -40,7 +39,7 @@ const Chat = () => {
     fetchDataOnLoad: false,
   });
 
-  const { loading, error, data, refetch } = useQuery(GET_USERS);
+  const { loading, data, refetch } = useQuery(GET_USERS);
   const [addUser] = useMutation(ADD_USER);
 
   useEffect(() => {
@@ -139,8 +138,10 @@ const Chat = () => {
 };
 
 // export default Chat;
-export default () => (
-  <ApolloProvider client={client}>
-    <Chat />
-  </ApolloProvider>
-);
+export default function ChatWithApollo() {
+  return (
+    <ApolloProvider client={client}>
+      <Chat />
+    </ApolloProvider>
+  );
+}

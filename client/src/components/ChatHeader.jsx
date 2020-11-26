@@ -60,7 +60,15 @@ const ChatHeader = (props) => {
         <List.Item>
           <Button.Group basic size='tiny'>
             <Popup
-              trigger={<Button icon='user delete' onClick={deleteAllUsers} />}
+              trigger={
+                <Button
+                  icon='user delete'
+                  onClick={() => {
+                    deleteAllUsers();
+                    deleteAllMessages();
+                  }}
+                />
+              }
               size='mini'
               content='Delete users'
               position='bottom center'
