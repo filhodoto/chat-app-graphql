@@ -1,0 +1,8 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body,
+#app {
+  height: 100%;
+}
