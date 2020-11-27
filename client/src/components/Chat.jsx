@@ -8,7 +8,7 @@ import {
 } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { Dimmer, Loader } from 'semantic-ui-react';
-
+import styled, { keyframes } from 'styled-components';
 import { GET_USERS, ADD_USER } from '../actions/requests';
 import AddUserModal from './AddUserModal';
 import ChatHeader from './ChatHeader';
@@ -30,6 +30,36 @@ const client = new ApolloClient({
   uri: 'http://localhost:4000/',
   cache: new InMemoryCache(),
 });
+
+// Create background animation
+const gradient = keyframes`
+  0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+`;
+
+const Container = styled.div`
+  height: 100%;
+  padding: 20px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: linear-gradient(
+    -45deg,
+    #e5e5e5,
+    #c6c9ce,
+    #a3aeb6,
+    #7e969c,
+    #f2ecff
+  );
+  background-size: 400% 400%;
+  animation: ${gradient} 8s ease infinite;
+`;
 
 const Chat = () => {
   const [state, setState] = useState({
@@ -110,14 +140,7 @@ const Chat = () => {
           <Loader content='Loading' />
         </Dimmer>
       ) : (
-        <div
-          style={{
-            height: '100%',
-            padding: '20px',
-            display: 'grid',
-            gridTemplateRows: 'auto 1fr auto',
-          }}
-        >
+        <Container>
           <AddUserModal modalOpen={state.modalOpen} callbackFunc={addNewUser} />
           <ChatHeader loggedUser={state.loggedUser} callbackFunc={addNewUser} />
           <ChatConversation
@@ -131,7 +154,7 @@ const Chat = () => {
               usersList={state.usersList}
             />
           )}
-        </div>
+        </Container>
       )}
     </>
   );

@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Dropdown, Form, Icon, Input } from 'semantic-ui-react';
 import { SEND_MESSAGES } from '../actions/requests';
+import styled from 'styled-components';
+
+const StyledDropdown = styled(Dropdown)`
+  padding: 0 20px 0 0;
+  display: flex !important;
+  align-items: center;
+`;
 
 const ChatFooter = ({ usersList, loggedUser, handleUserChange }) => {
   const [message, setMessage] = useState('');
@@ -29,7 +36,7 @@ const ChatFooter = ({ usersList, loggedUser, handleUserChange }) => {
 
   return (
     <Form
-      style={{ padding: '20px 0px 0' }}
+      css='padding: 20px 0 0'
       onSubmit={handleFormSubmit}
       onKeyPress={(ev) => {
         if (ev.key === 'Enter') {
@@ -45,18 +52,12 @@ const ChatFooter = ({ usersList, loggedUser, handleUserChange }) => {
         value={message}
         onChange={handleInputChange}
       >
-        <Dropdown
-          item
+        <StyledDropdown
           trigger={
             <span>
               <Icon name='user' /> {loggedUser}
             </span>
           }
-          style={{
-            padding: '0 20px 0 0',
-            display: 'flex',
-            alignItems: 'center',
-          }}
         >
           <Dropdown.Menu>
             <Dropdown.Header content='Choose an user' />
@@ -70,10 +71,10 @@ const ChatFooter = ({ usersList, loggedUser, handleUserChange }) => {
               />
             ))}
           </Dropdown.Menu>
-        </Dropdown>
+        </StyledDropdown>
         <input />
 
-        <Button type='submit' basic icon labelPosition='left' color='blue'>
+        <Button type='submit' icon labelPosition='left' color='teal'>
           <Icon name='send' />
           Send
         </Button>
