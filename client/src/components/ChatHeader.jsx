@@ -10,6 +10,19 @@ import {
   Input,
 } from 'semantic-ui-react';
 import { DELETE_ALL_MESSAGES, DELETE_ALL_USERS } from '../actions/requests';
+import styled from 'styled-components';
+
+const StyledButtonGroup = styled(Button.Group)`
+  .ui.icon.button:hover {
+    color: teal !important;
+  }
+`;
+
+const StyledContainer = styled(Segment)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 const ChatHeader = (props) => {
   const [inputContent, setInputContent] = useState('');
@@ -28,15 +41,8 @@ const ChatHeader = (props) => {
   const handleInputChange = (ev, value) => setInputContent(value.value);
 
   return (
-    <Segment
-      attached='top'
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
-      <Header size='medium' style={{ margin: 0 }}>
+    <StyledContainer attached='top'>
+      <Header size='medium' style={{ margin: 0 }} color='teal'>
         <Icon name='comment outline' size='large' />
         {loggedUser && (
           <Header.Content>Logged in as {loggedUser}</Header.Content>
@@ -45,7 +51,9 @@ const ChatHeader = (props) => {
       <List horizontal>
         <List.Item>
           <Input
-            action={<Button onClick={handleAddUser} icon='user add' />}
+            action={
+              <Button onClick={handleAddUser} icon='user add' color='teal' />
+            }
             size='mini'
             placeholder='Add user...'
             value={inputContent}
@@ -58,7 +66,7 @@ const ChatHeader = (props) => {
           />
         </List.Item>
         <List.Item>
-          <Button.Group basic size='tiny'>
+          <StyledButtonGroup basic size='tiny'>
             <Popup
               trigger={
                 <Button
@@ -84,10 +92,10 @@ const ChatHeader = (props) => {
               content='Delete messages'
               position='bottom center'
             />
-          </Button.Group>
+          </StyledButtonGroup>
         </List.Item>
       </List>
-    </Segment>
+    </StyledContainer>
   );
 };
 

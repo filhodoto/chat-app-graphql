@@ -2,30 +2,40 @@ import React, { useCallback, useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import { GET_MESSAGES } from '../actions/requests';
 import { Segment, Label } from 'semantic-ui-react';
+import styled from 'styled-components';
 
-const messageStyles = {
-  maxWidth: '50%',
-  overflowWrap: 'break-word',
-};
+const StyledMessage = styled(Segment)`
+  max-width: 50%;
+  overflow-wrap: break-word;
+  align-self: ${(props) => props.alignself};
+`;
 
-const containerStyles = {
-  display: 'flex',
-  flexDirection: 'column-reverse',
-  height: '100%',
-  overflowY: 'scroll',
-  paddingRight: '25px',
-  width: 'calc(100% + 30px)',
-};
+const StyledContainer = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+  overflow-y: scroll;
+  padding-right: 25px;
+  width: calc(100% + 30px);
+`;
 
 // Add this div so we can see the last messages in the bottom of the container div
 // https://stackoverflow.com/questions/18614301/keep-overflow-div-scrolled-to-bottom-unless-user-scrolls-up#comment79201655_44051405
-const reverseDivStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-};
+const ReversedContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 // Define colors will be using in our messages
-const colors = ['teal', 'violet', 'olive', 'yellow', 'purple'];
+const colors = [
+  'orange',
+  'violet',
+  'olive',
+  'yellow',
+  'purple',
+  'pink',
+  'brown',
+];
 
 const Messages = ({ loggedUser, usersList }) => {
   const { data } = useSubscription(GET_MESSAGES);
@@ -51,21 +61,21 @@ const Messages = ({ loggedUser, usersList }) => {
   }, [usersList, userColors]);
 
   return (
-    <div style={containerStyles}>
-      <div style={reverseDivStyles}>
+    <StyledContainer>
+      <ReversedContainer>
         {data &&
           data.messages.map(({ id, username, content }) => {
             const isUser = username === loggedUser;
             const messageAlign = isUser ? 'flex-end' : 'flex-start';
 
             return (
-              <Segment
+              <StyledMessage
                 key={id}
                 compact
                 inverted
                 secondary
-                color={isUser ? 'blue' : 'grey'}
-                style={{ ...messageStyles, alignSelf: messageAlign }}
+                color={isUser ? 'teal' : 'grey'}
+                alignself={messageAlign}
               >
                 {!isUser && (
                   <Label
@@ -78,11 +88,11 @@ const Messages = ({ loggedUser, usersList }) => {
                   </Label>
                 )}
                 <p>{content}</p>
-              </Segment>
+              </StyledMessage>
             );
           })}
-      </div>
-    </div>
+      </ReversedContainer>
+    </StyledContainer>
   );
 };
 

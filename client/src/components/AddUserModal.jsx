@@ -19,7 +19,9 @@ const AddUserModal = (props) => {
       dimmer='blurring'
       open={props.modalOpen}
       size='small'
-      style={{ textAlign: 'center' }}
+      css={`
+        text-align: center;
+      `}
     >
       <Modal.Content>
         <Header icon>
