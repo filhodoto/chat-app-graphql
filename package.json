@@ -1,0 +1,19 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Gonçalo Ramalho",
+    "email": "meet@goncaloramalho.com"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "concurrently \"yarn server\" \"yarn client\"",
+    "server": "cd server && yarn start",
+    "client": "cd client && yarn start"
+  },
+  "dependencies": {
+    "concurrently": "^5.3.0"
+  }
+}
