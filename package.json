@@ -9,9 +9,9 @@
   },
   "type": "module",
   "scripts": {
-    "start": "concurrently \"yarn server\" \"yarn client\"",
+    "start": "concurrently \"yarn client\" \"yarn server\"",
     "server": "cd server && yarn start",
-    "client": "cd client && yarn build"
+    "client": "cd client && yarn build:start"
   },
   "dependencies": {
     "concurrently": "^5.3.0"

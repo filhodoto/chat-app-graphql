@@ -4,7 +4,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
-    "build:start": "cd dist && PORT=8080 npx serve",
+    "build:start": "cd dist && cross-env PORT=8080 npx serve",
     "start": "webpack-dev-server --open --mode development",
     "start:live": "webpack-dev-server --open --mode development --liveReload",
     "docker:build": "docker build . -t wp5-starter",
@@ -22,6 +22,7 @@
     "@babel/preset-react": "7.9.4",
     "babel-loader": "8.1.0",
     "babel-plugin-styled-components": "^1.12.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^3.5.3",
     "eslint": "^7.13.0",
     "eslint-plugin-react": "^7.21.5",
